@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>ArqueoFoto - Documentación Arqueológica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #FFF8F0 0%, #FFEDD5 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #D97706 0%, #EA580C 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #1F2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-camera {
+            background: #2563EB;
+            color: white;
+        }
+        
+        .btn-gallery {
+            background: #7C3AED;
+            color: white;
+        }
+        
+        .btn-edit {
+            background: #10B981;
+            color: white;
+            grid-column: span 2;
+        }
+        
+        .btn-save {
+            background: #EA580C;
+            color: white;
+            padding: 16px;
+            font-size: 18px;
+            grid-column: span 2;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            min-height: 400px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #mainCanvas {
+            max-width: 100%;
+            display: block;
+            cursor: crosshair;
+        }
+        
+        .placeholder {
+            text-align: center;
+            color: #9CA3AF;
+            position: absolute;
+        }
+        
+        .placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 12px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #D97706;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .checkbox-group {
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .scale-controls {
+            background: #F9FAFB;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .control-row label {
+            min-width: 100px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .control-row input[type="range"] {
+            flex: 1;
+        }
+        
+        .control-row span {
+            min-width: 60px;
+            text-align: right;
+            font-weight: bold;
+            color: #D97706;
+        }
+        
+        .info-box {
+            background: #EFF6FF;
+            border-left: 4px solid #2563EB;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #1E40AF;
+        }
+        
+        .north-controls {
+            background: #F9FAFB;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            button {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📸 ArqueoFoto</h1>
+            <p>Herramienta de Documentación Fotográfica Arqueológica</p>
+        </div>
+        
+        <div class="card">
+            <h2>🖼️ Imagen</h2>
+            <div class="btn-group">
+                <button class="btn-camera" onclick="openCamera()">
+                    📷 Cámara
+                </button>
+                <button class="btn-gallery" onclick="openGallery()">
+                    🎨 Galería
+                </button>
+            </div>
+            
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="loadImage(event)">
+            <input type="file" id="galleryInput" accept="image/*" onchange="loadImage(event)">
+            
+            <div class="canvas-container">
+                <canvas id="mainCanvas"></canvas>
+                <div class="placeholder" id="placeholder">
+                    <div class="placeholder-icon">📷</div>
+                    <p>Toma o carga una foto para comenzar</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <button class="btn-edit" onclick="toggleForm()">
+                📝 Editar Datos de Excavación
+            </button>
+            
+            <div id="dataForm" class="hidden">
+                <div class="form-group">
+                    <label>Sitio</label>
+                    <input type="text" id="sitio" placeholder="Nombre del sitio" oninput="redraw()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Cuadrícula</label>
+                    <input type="text" id="cuadricula" placeholder="Ej: A1" oninput="redraw()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Pozo</label>
+                    <input type="text" id="pozo" placeholder="Número de pozo" oninput="redraw()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Nivel</label>
+                    <input type="text" id="nivel" placeholder="Ej: Nivel 1" oninput="redraw()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Sector</label>
+                    <input type="text" id="sector" placeholder="Sector" oninput="redraw()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Excavador</label>
+                    <input type="text" id="excavador" placeholder="Nombre del excavador" oninput="redraw()">
+                </div>
+                
+                <div class="form-group">
+                    <label>Observaciones</label>
+                    <textarea id="observaciones" placeholder="Observaciones adicionales" oninput="redraw()"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>⚙️ Elementos a incluir</h2>
+            
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="checkScale" checked onchange="redraw()">
+                    <label for="checkScale">📏 Escala métrica ajustable</label>
+                </div>
+                
+                <div id="scaleControls" class="scale-controls">
+                    <div class="info-box">
+                        💡 Arrastra los extremos de la escala para ajustar su tamaño real
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tamaño de la escala</label>
+                        <select id="scaleSize" onchange="redraw()">
+                            <option value="10">10 cm</option>
+                            <option value="20">20 cm</option>
+                            <option value="50" selected>50 cm</option>
+                            <option value="100">1 metro</option>
+                            <option value="200">2 metros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label>Ancho visual:</label>
+                        <input type="range" id="scaleWidth" min="100" max="600" value="300" oninput="updateScaleWidth()">
+                        <span id="scaleWidthValue">300px</span>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label>Posición X:</label>
+                        <input type="range" id="scaleX" min="0" max="100" value="70" oninput="updateScalePosition()">
+                        <span id="scaleXValue">70%</span>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label>Posición Y:</label>
+                        <input type="range" id="scaleY" min="0" max="100" value="90" oninput="updateScalePosition()">
+                        <span id="scaleYValue">90%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="checkbox-item">
+                <input type="checkbox" id="checkNorth" checked onchange="redraw()">
+                <label for="checkNorth">🧭 Flecha Norte</label>
+            </div>
+            
+            <div id="northControls" class="north-controls">
+                <div class="control-row">
+                    <label>Posición X:</label>
+                    <input type="range" id="northX" min="0" max="100" value="90" oninput="updateNorthPosition()">
+                    <span id="northXValue">90%</span>
+                </div>
+                
+                <div class="control-row">
+                    <label>Posición Y:</label>
+                    <input type="range" id="northY" min="0" max="100" value="80" oninput="updateNorthPosition()">
+                    <span id="northYValue">80%</span>
+                </div>
+                
+                <div class="control-row">
+                    <label>Tamaño:</label>
+                    <input type="range" id="northSize" min="30" max="80" value="45" oninput="updateNorthSize()">
+                    <span id="northSizeValue">45px</span>
+                </div>
+            </div>
+            
+            <div class="checkbox-item">
+                <input type="checkbox" id="checkCoords" checked onchange="redraw()">
+                <label for="checkCoords">📍 Coordenadas GPS</label>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn-save" onclick="downloadImage()">
+                💾 GUARDAR FOTO ANOTADA
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        let currentImage = null;
+        let latitude = null;
+        let longitude = null;
+        let canvas = null;
+        let ctx = null;
+        
+        // Inicializar
+        window.onload = function() {
+            canvas = document.getElementById('mainCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Obtener ubicación GPS
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        latitude = position.coords.latitude.toFixed(6);
+                        longitude = position.coords.longitude.toFixed(6);
+                        redraw();
+                    },
+                    (error) => {
+                        console.log('No se pudo obtener ubicación');
+                    }
+                );
+            }
+        };
+        
+        function openCamera() {
+            document.getElementById('cameraInput').click();
+        }
+        
+        function openGallery() {
+            document.getElementById('galleryInput').click();
+        }
+        
+        function toggleForm() {
+            const form = document.getElementById('dataForm');
+            form.classList.toggle('hidden');
+        }
+        
+        function loadImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImage = new Image();
+                    currentImage.onload = function() {
+                        document.getElementById('placeholder').style.display = 'none';
+                        
+                        // Ajustar canvas al tamaño de la imagen
+                        const maxWidth = document.querySelector('.canvas-container').clientWidth;
+                        const scale = maxWidth / currentImage.width;
+                        
+                        canvas.width = currentImage.width;
+                        canvas.height = currentImage.height;
+                        canvas.style.maxWidth = '100%';
+                        
+                        // Actualizar rangos de posición
+                        updateRangeMax();
+                        redraw();
+                    };
+                    currentImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function updateRangeMax() {
+            if (!currentImage) return;
+            
+            const scaleXSlider = document.getElementById('scaleX');
+            const scaleYSlider = document.getElementById('scaleY');
+            const scaleWidthSlider = document.getElementById('scaleWidth');
+            
+            scaleWidthSlider.max = Math.min(currentImage.width * 0.8, 800);
+        }
+        
+        function updateScaleWidth() {
+            const value = document.getElementById('scaleWidth').value;
+            document.getElementById('scaleWidthValue').textContent = value + 'px';
+            redraw();
+        }
+        
+        function updateScalePosition() {
+            const x = document.getElementById('scaleX').value;
+            const y = document.getElementById('scaleY').value;
+            document.getElementById('scaleXValue').textContent = x + '%';
+            document.getElementById('scaleYValue').textContent = y + '%';
+            redraw();
+        }
+        
+        function updateNorthPosition() {
+            const x = document.getElementById('northX').value;
+            const y = document.getElementById('northY').value;
+            document.getElementById('northXValue').textContent = x + '%';
+            document.getElementById('northYValue').textContent = y + '%';
+            redraw();
+        }
+        
+        function updateNorthSize() {
+            const size = document.getElementById('northSize').value;
+            document.getElementById('northSizeValue').textContent = size + 'px';
+            redraw();
+        }
+        
+        function redraw() {
+            if (!currentImage || !ctx) return;
+            
+            // Limpiar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar imagen original
+            ctx.drawImage(currentImage, 0, 0);
+            
+            // Panel de información superior
+            drawInfoPanel();
+            
+            // Escala métrica
+            if (document.getElementById('checkScale').checked) {
+                drawScale();
+            }
+            
+            // Flecha Norte
+            if (document.getElementById('checkNorth').checked) {
+                drawNorthArrow();
+            }
+            
+            // Coordenadas GPS
+            if (document.getElementById('checkCoords').checked && latitude) {
+                drawCoordinates();
+            }
+            
+            // Observaciones
+            const obs = document.getElementById('observaciones').value;
+            if (obs) {
+                drawObservations(obs);
+            }
+        }
+        
+        function drawInfoPanel() {
+            const panelHeight = 220;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillRect(0, 0, canvas.width, panelHeight);
+            
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.font = 'bold 32px Arial';
+            ctx.strokeText('REGISTRO ARQUEOLÓGICO', 20, 40);
+            ctx.fillText('REGISTRO ARQUEOLÓGICO', 20, 40);
+            
+            ctx.font = 'bold 24px Arial';
+            let yPos = 80;
+            const lineHeight = 35;
+            
+            const fields = [
+                { id: 'sitio', label: 'Sitio' },
+                { id: 'cuadricula', label: 'Cuadrícula' },
+                { id: 'pozo', label: 'Pozo' },
+                { id: 'nivel', label: 'Nivel' },
+                { id: 'sector', label: 'Sector' }
+            ];
+            
+            fields.forEach(field => {
+                const value = document.getElementById(field.id).value;
+                if (value) {
+                    const text = `${field.label}: ${value}`;
+                    ctx.strokeText(text, 20, yPos);
+                    ctx.fillText(text, 20, yPos);
+                    yPos += lineHeight;
+                }
+            });
+            
+            const fecha = new Date().toLocaleDateString('es-AR');
+            ctx.strokeText(`Fecha: ${fecha}`, 20, yPos);
+            ctx.fillText(`Fecha: ${fecha}`, 20, yPos);
+            yPos += lineHeight;
+            
+            const excavador = document.getElementById('excavador').value;
+            if (excavador) {
+                ctx.strokeText(`Excavador: ${excavador}`, 20, yPos);
+                ctx.fillText(`Excavador: ${excavador}`, 20, yPos);
+            }
+        }
+        
+        function drawScale() {
+            const scaleWidth = parseInt(document.getElementById('scaleWidth').value);
+            const scaleHeight = 60;
+            const xPercent = parseInt(document.getElementById('scaleX').value);
+            const yPercent = parseInt(document.getElementById('scaleY').value);
+            
+            const scaleX = (canvas.width * xPercent / 100) - scaleWidth / 2;
+            const scaleY = canvas.height * yPercent / 100;
+            
+            // Fondo
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.fillRect(scaleX, scaleY, scaleWidth, scaleHeight);
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(scaleX, scaleY, scaleWidth, scaleHeight);
+            
+            // Segmentos alternados
+            const segments = 10;
+            const segmentWidth = scaleWidth / segments;
+            
+            for (let i = 0; i < segments; i++) {
+                ctx.fillStyle = i % 2 === 0 ? 'black' : 'white';
+                ctx.fillRect(scaleX + i * segmentWidth, scaleY, segmentWidth, scaleHeight / 2);
+            }
+            
+            // Texto de medida
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 22px Arial';
+            ctx.textAlign = 'center';
+            const scaleSize = document.getElementById('scaleSize').value;
+            const sizeText = scaleSize >= 100 ? `${scaleSize/100} m` : `${scaleSize} cm`;
+            ctx.fillText(sizeText, scaleX + scaleWidth / 2, scaleY + scaleHeight - 12);
+            ctx.textAlign = 'left';
+        }
+        
+        function drawNorthArrow() {
+            const size = parseInt(document.getElementById('northSize').value);
+            const xPercent = parseInt(document.getElementById('northX').value);
+            const yPercent = parseInt(document.getElementById('northY').value);
+            
+            const northX = canvas.width * xPercent / 100;
+            const northY = canvas.height * yPercent / 100;
+            
+            // Círculo de fondo
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.beginPath();
+            ctx.arc(northX, northY, size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Flecha norte (roja)
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.moveTo(northX, northY - size * 0.65);
+            ctx.lineTo(northX - size * 0.33, northY + size * 0.22);
+            ctx.lineTo(northX, northY);
+            ctx.lineTo(northX + size * 0.33, northY + size * 0.22);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Flecha sur (blanca)
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(northX, northY);
+            ctx.lineTo(northX - size * 0.33, northY + size * 0.22);
+            ctx.lineTo(northX, northY + size * 0.55);
+            ctx.lineTo(northX + size * 0.33, northY + size * 0.22);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Letra N
+            ctx.fillStyle = 'black';
+            ctx.font = `bold ${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('N', northX, northY + size * 1.3);
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+        }
+        
+        function drawCoordinates() {
+            const coordsX = 20;
+            const coordsY = canvas.height - 80;
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillRect(coordsX - 10, coordsY - 35, 400, 70);
+            
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.font = 'bold 20px Arial';
+            
+            ctx.strokeText(`Lat: ${latitude}°`, coordsX, coordsY);
+            ctx.fillText(`Lat: ${latitude}°`, coordsX, coordsY);
+            ctx.strokeText(`Lon: ${longitude}°`, coordsX, coordsY + 30);
+            ctx.fillText(`Lon: ${longitude}°`, coordsX, coordsY + 30);
+        }
+        
+        function drawObservations(obs) {
+            const obsY = canvas.height - 160;
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillRect(0, obsY - 35, canvas.width, 50);
+            
+            ctx.fillStyle = 'yellow';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.font = 'bold 22px Arial';
+            ctx.strokeText(`Obs: ${obs}`, 20, obsY);
+            ctx.fillText(`Obs: ${obs}`, 20, obsY);
+        }
+        
+        function downloadImage() {
+            if (!currentImage) {
+                alert('Primero carga una imagen');
+                return;
+            }
+            
+            const sitio = document.getElementById('sitio').value || 'foto';
+            const cuadricula = document.getElementById('cuadricula').value || '';
+            const filename = `arqueo_${sitio}_${cuadricula}_${Date.now()}.jpg`;
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                alert('¡Foto guardada! Revisa tu carpeta de Descargas');
+            }, 'image/jpeg', 0.95);
+        }
+    </script>
+</body>
+</html>
